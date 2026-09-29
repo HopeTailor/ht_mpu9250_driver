@@ -10,6 +10,8 @@
 #define MPU9250_REG_WHO_AM_I      0x75
 #define MPU9250_WHO_AM_I_EXPECTED 0x71
 #define MPU9250_REG_INT_PIN_CFG   0x37
+#define MPU9250_REG_GYRO_CONFIG   0x1B
+#define MPU9250_REG_ACCEL_CONFIG  0x1C
 
 #define AK8963_I2C_ADDR           0x0C
 #define AK8963_REG_WIA            0x00
@@ -29,6 +31,24 @@ typedef struct {
     ht_mpu_filter_type_t filter_type;
 } ht_mpu9250_dev_t;
 
+typedef enum {
+    HT_MPU_GYRO_FS_250DPS = 0,
+    HT_MPU_GYRO_FS_500DPS,
+    HT_MPU_GYRO_FS_1000DPS,
+    HT_MPU_GYRO_FS_2000PS
+} ht_mpu_gyro_fs_t;
+
+typedef enum {
+    HT_MPU_ACCEL_2G = 0,
+    HT_MPU_ACCEL_4G,
+    HT_MPU_ACCEL_8G,
+    HT_MPU_ACCEL_16G
+} ht_mpu_accel_fs_t;
+
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev);
 
 esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, uint8_t *mag_id);
+
+esp_err_t ht_mpu9250_set_gyro_fs(ht_mpu9250_dev_t *dev, ht_mpu_gyro_fs_t fs);
+
+esp_err_t ht_mpu9250_set_accel_fs(ht_mpu9250_dev_t *dev, ht_mpu_accel_fs_t fs);
