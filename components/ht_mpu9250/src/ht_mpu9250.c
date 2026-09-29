@@ -1,5 +1,16 @@
 #include "ht_mpu9250.h"
 
+
+static ht_mpu9250_set_gyro_fs(ht_mpu9250_dev_t *dev) {
+    uint8_t config_val = dev->gyro_scale << 3;
+    return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_GYRO_CONFIG, &config_val, 1);
+}
+
+static esp_err_t ht_mpu9250_set_accel_fs(ht_mpu9250_dev_t *dev) {
+    uint8_t config_val = dev->accel_scale << 3;
+    return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_ACCEL_CONFIG, &config_val, 1);
+}
+
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev) {
     uint8_t pwr_val = 0x00;
     esp_err_t err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_PWR_MGMT_1, &pwr_val, 1);
@@ -34,15 +45,6 @@ esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, ui
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_set_gyro_fs(ht_mpu9250_dev_t *dev, ht_mpu_gyro_fs_t fs) {
-    uint8_t config_val = fs << 3;
-    return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_GYRO_CONFIG, &config_val, 1);
-}
-
-esp_err_t ht_mpu9250_set_accel_fs(ht_mpu9250_dev_t *dev, ht_mpu_accel_fs_t fs) {
-    uint8_t config_val = fs << 3;
-    return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_ACCEL_CONFIG, &config_val, 1);
-}
 
 
 
