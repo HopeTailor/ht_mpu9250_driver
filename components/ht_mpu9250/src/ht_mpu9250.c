@@ -11,7 +11,7 @@ static esp_err_t ht_mpu9250_set_accel_fs(ht_mpu9250_dev_t *dev) {
     return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_ACCEL_CONFIG, &config_val, 1);
 }
 
-static float ht_mpu9250_get_accel_res(ht_mpu_accel_fs_t scale) {
+static float ht_mpu9250_get_accel_res(ht_mpu9250_accel_fs_t scale) {
     switch(scale) {
         case HT_MPU_ACCEL_2G: return 16384.0f;
         case HT_MPU_ACCEL_4G: return 8192.0f;
@@ -21,7 +21,7 @@ static float ht_mpu9250_get_accel_res(ht_mpu_accel_fs_t scale) {
     }
 }
 
-static float ht_mpu9250_get_gyro_res(ht_mpu_gyro_fs_t scale) {
+static float ht_mpu9250_get_gyro_res(ht_mpu9250_gyro_fs_t scale) {
     switch(scale) {
         case HT_MPU_GYRO_FS_250DPS:  return 131.0f;
         case HT_MPU_GYRO_FS_500DPS:  return 65.5f;
@@ -81,7 +81,7 @@ esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, ui
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_get_accel_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *accel) {
+esp_err_t ht_mpu9250_get_accel_raw(ht_mpu9250_dev_t *dev, ht_mpu9250_raw_data_t *accel) {
     uint8_t data[6];
     esp_err_t err = ht_i2c_read_reg8(dev->i2c_dev, MPU9250_REG_ACCEL_XOUT_H, data, 6);
     if(err != ESP_OK) {
@@ -94,7 +94,7 @@ esp_err_t ht_mpu9250_get_accel_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *acc
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_get_gyro_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *gyro) {
+esp_err_t ht_mpu9250_get_gyro_raw(ht_mpu9250_dev_t *dev, ht_mpu9250_raw_data_t *gyro) {
     uint8_t data[6];
     esp_err_t err = ht_i2c_read_reg8(dev->i2c_dev, MPU9250_REG_GYRO_XOUT_H, data, 6);
     if(err != ESP_OK) {
@@ -107,7 +107,7 @@ esp_err_t ht_mpu9250_get_gyro_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *gyro
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_get_mag_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *mag){
+esp_err_t ht_mpu9250_get_mag_raw(ht_mpu9250_dev_t *dev, ht_mpu9250_raw_data_t *mag){
     uint8_t data[7];
     esp_err_t err = ht_i2c_read_reg8(dev->i2c_mag, AK8963_REG_HXL, data, 7);
     if(err != ESP_OK) {
@@ -131,8 +131,8 @@ esp_err_t ht_mpu9250_get_temp_raw(ht_mpu9250_dev_t *dev, int16_t *temp) {
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu_data_t *accel) {
-    ht_mpu_raw_data_t raw;
+esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *accel) {
+    ht_mpu9250_raw_data_t raw;
     esp_err_t err = ht_mpu9250_get_accel_raw(dev, &raw);
     if(err != ESP_OK) {
         return err;
@@ -145,8 +145,8 @@ esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu_data_t *accel) {
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu_data_t *gyro) {
-    ht_mpu_raw_data_t raw;
+esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *gyro) {
+    ht_mpu9250_raw_data_t raw;
     esp_err_t err = ht_mpu9250_get_gyro_raw(dev, &raw);
     if(err != ESP_OK) {
         return err;
@@ -159,8 +159,8 @@ esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu_data_t *gyro) {
     return ESP_OK;
 }
 
-esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu_data_t *mag) {
-    ht_mpu_raw_data_t raw;
+esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *mag) {
+    ht_mpu9250_raw_data_t raw;
     esp_err_t err = ht_mpu9250_get_mag_raw(dev, &raw);
     if(err != ESP_OK) {
         return err;

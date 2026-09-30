@@ -26,77 +26,77 @@ typedef enum {
     HT_MPU_FILTER_NONE = 0,
     HT_MPU_FILTER_MADGWICK,
     HT_MPU_FILTER_MAHONY,
-    HT_MPU_FILTER_HW_DMP
-} ht_mpu_filter_type_t;
+    HT_MPU_FILTER_DMP
+} ht_mpu9250_filter_type_t;
 
 typedef enum {
     HT_MPU_GYRO_FS_250DPS = 0,
     HT_MPU_GYRO_FS_500DPS,
     HT_MPU_GYRO_FS_1000DPS,
     HT_MPU_GYRO_FS_2000DPS
-} ht_mpu_gyro_fs_t;
+} ht_mpu9250_gyro_fs_t;
 
 typedef enum {
     HT_MPU_ACCEL_2G = 0,
     HT_MPU_ACCEL_4G,
     HT_MPU_ACCEL_8G,
     HT_MPU_ACCEL_16G
-} ht_mpu_accel_fs_t;
+} ht_mpu9250_accel_fs_t;
 
 typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
-} ht_mpu_raw_data_t;
+} ht_mpu9250_raw_data_t;
 
 typedef struct {
     float x;
     float y;
     float z;
-} ht_mpu_data_t;
+} ht_mpu9250_data_t;
 
 
 typedef struct {
     i2c_master_dev_handle_t i2c_dev;
     i2c_master_dev_handle_t i2c_mag;
-    ht_mpu_filter_type_t filter_type;
-    ht_mpu_gyro_fs_t gyro_scale;
-    ht_mpu_accel_fs_t accel_scale;
+    ht_mpu9250_filter_type_t filter_type;
+    ht_mpu9250_gyro_fs_t gyro_scale;
+    ht_mpu9250_accel_fs_t accel_scale;
 } ht_mpu9250_dev_t;
 
 typedef struct {
     float q0, q1, q2, q3;
     float beta;
     uint64_t last_update_time;
-} ht_mpu_ahrs_state_t;
+} ht_mpu9250_ahrs_state_t;
 
 typedef struct {
     float roll;
     float pitch;
     float yaw;
-} ht_mpu_euler_t;
+} ht_mpu9250_euler_t;
 
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev);
 
 esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, uint8_t *mag_id);
 
-esp_err_t ht_mpu9250_get_accel_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *accel);
+esp_err_t ht_mpu9250_get_accel_raw(ht_mpu9250_dev_t *dev, ht_mpu9250_raw_data_t *accel);
 
-esp_err_t ht_mpu9250_get_gyro_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *gyro);
+esp_err_t ht_mpu9250_get_gyro_raw(ht_mpu9250_dev_t *dev, ht_mpu9250_raw_data_t *gyro);
 
-esp_err_t ht_mpu9250_get_mag_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *mag);
+esp_err_t ht_mpu9250_get_mag_raw(ht_mpu9250_dev_t *dev, ht_mpu9250_raw_data_t *mag);
 
 esp_err_t ht_mpu9250_get_temp_raw(ht_mpu9250_dev_t *dev, int16_t *temp);
 
-esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu_data_t *accel);
+esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *accel);
 
-esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu_data_t *gyro);
+esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *gyro);
 
-esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu_data_t *mag);
+esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *mag);
 
 esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp);
 
 void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev);
 
-esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu_euler_t *euler);
+esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler);
 
