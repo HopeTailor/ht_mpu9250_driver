@@ -11,6 +11,26 @@ static esp_err_t ht_mpu9250_set_accel_fs(ht_mpu9250_dev_t *dev) {
     return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_ACCEL_CONFIG, &config_val, 1);
 }
 
+static float ht_mpu9250_get_accel_res(ht_mpu_accel_fs_t scale) {
+    switch(scale) {
+        case HT_MPU_ACCEL_2G: return 16384.0f;
+        case HT_MPU_ACCEL_4G: return 8192.0f;
+        case HT_MPU_ACCEL_8G: return 4096.0f;
+        case HT_MPU_ACCEL_16G: return 2048.0f;
+        default: return 16384.0f;
+    }
+}
+
+static float ht_mpu9250_get_gyro_res(ht_mpu_gyro_fs_t scale) {
+    switch(scale) {
+        case HT_MPU_GYRO_FS_250DPS:  return 131.0f;
+        case HT_MPU_GYRO_FS_500DPS:  return 65.5f;
+        case HT_MPU_GYRO_FS_1000DPS: return 32.8f;
+        case HT_MPU_GYRO_FS_2000DPS: return 16.4f;
+        default: return 131.0f;
+    }
+}
+
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev) {
     uint8_t pwr_val = 0x00;
     esp_err_t err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_PWR_MGMT_1, &pwr_val, 1);
@@ -110,6 +130,60 @@ esp_err_t ht_mpu9250_get_temp_raw(ht_mpu9250_dev_t *dev, int16_t *temp) {
     *temp = (int16_t)((data[0] << 8) | data[1]);
     return ESP_OK;
 }
+
+esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu_data_t *accel) {
+    ht_mpu_raw_data_t raw;
+    esp_err_t err = ht_mpu9250_get_accel_raw(dev, &raw);
+    if(err != ESP_OK) {
+        return err;
+    }
+
+    float res = ht_mpu9250_get_accel_res(dev->accel_scale);
+    accel->x = (float)raw.x / res;
+    accel->y = (float)raw.y / res;
+    accel->z = (float)raw.z / res;
+    return ESP_OK;
+}
+
+esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu_data_t *gyro) {
+    ht_mpu_raw_data_t raw;
+    esp_err_t err = ht_mpu9250_get_gyro_raw(dev, &raw);
+    if(err != ESP_OK) {
+        return err;
+    }
+
+    float res = ht_mpu9250_get_gyro_res(dev->gyro_scale);
+    gyro->x = (float)raw.x / res;
+    gyro->y = (float)raw.y / res;
+    gyro->z = (float)raw.z / res;
+    return ESP_OK;
+}
+
+esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu_data_t *mag) {
+    ht_mpu_raw_data_t raw;
+    esp_err_t err = ht_mpu9250_get_mag_raw(dev, &raw);
+    if(err != ESP_OK) {
+        return err;
+    }
+
+    mag->x = (float)raw.x * 0.15f;
+    mag->y = (float)raw.y * 0.15f;
+    mag->z = (float)(-raw.z) * 0.15f;
+    return ESP_OK;
+}
+
+esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp) {
+    int16_t raw;
+    esp_err_t err = ht_mpu9250_get_temp_raw(dev, &raw);
+    if(err != ESP_OK) {
+        return err;
+    }
+
+    *temp = ((float)raw) / 333.87f + 21.0f;
+    return ESP_OK; 
+}
+
+
 
 
 

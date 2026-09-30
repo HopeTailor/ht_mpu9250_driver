@@ -34,7 +34,7 @@ typedef enum {
     HT_MPU_GYRO_FS_250DPS = 0,
     HT_MPU_GYRO_FS_500DPS,
     HT_MPU_GYRO_FS_1000DPS,
-    HT_MPU_GYRO_FS_2000PS
+    HT_MPU_GYRO_FS_2000DPS
 } ht_mpu_gyro_fs_t;
 
 typedef enum {
@@ -49,6 +49,13 @@ typedef struct {
     int16_t y;
     int16_t z;
 } ht_mpu_raw_data_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} ht_mpu_data_t;
+
 
 typedef struct {
     i2c_master_dev_handle_t i2c_dev;
@@ -69,3 +76,13 @@ esp_err_t ht_mpu9250_get_gyro_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *gyro
 esp_err_t ht_mpu9250_get_mag_raw(ht_mpu9250_dev_t *dev, ht_mpu_raw_data_t *mag);
 
 esp_err_t ht_mpu9250_get_temp_raw(ht_mpu9250_dev_t *dev, int16_t *temp);
+
+esp_err_t ht_mpu9250_get_accel(ht_mpu9250_dev_t *dev, ht_mpu_data_t *accel);
+
+esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu_data_t *gyro);
+
+esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu_data_t *mag);
+
+esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp);
+
+
