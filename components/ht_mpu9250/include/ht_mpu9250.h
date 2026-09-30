@@ -24,7 +24,6 @@
 
 typedef enum {
     HT_MPU_FILTER_NONE = 0,
-    HT_MPU_FILTER_KALMAN,
     HT_MPU_FILTER_MADGWICK,
     HT_MPU_FILTER_MAHONY,
     HT_MPU_FILTER_HW_DMP
@@ -65,6 +64,18 @@ typedef struct {
     ht_mpu_accel_fs_t accel_scale;
 } ht_mpu9250_dev_t;
 
+typedef struct {
+    float q0, q1, q2, q3;
+    float beta;
+    uint64_t last_update_time;
+} ht_mpu_ahrs_state_t;
+
+typedef struct {
+    float roll;
+    float pitch;
+    float yaw;
+} ht_mpu_euler_t;
+
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev);
 
 esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, uint8_t *mag_id);
@@ -85,4 +96,7 @@ esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu_data_t *mag);
 
 esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp);
 
+void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev);
+
+esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu_euler_t *euler);
 
