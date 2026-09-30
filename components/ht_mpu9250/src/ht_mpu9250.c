@@ -1,6 +1,5 @@
 #include "ht_mpu9250.h"
 
-
 static esp_err_t ht_mpu9250_set_gyro_fs(ht_mpu9250_dev_t *dev) {
     uint8_t config_val = dev->gyro_scale << 3;
     return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_GYRO_CONFIG, &config_val, 1);
@@ -29,6 +28,17 @@ static float ht_mpu9250_get_gyro_res(ht_mpu9250_gyro_fs_t scale) {
         case HT_MPU_GYRO_FS_2000DPS: return 16.4f;
         default: return 131.0f;
     }
+}
+
+void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev) {
+    dev->ahrs.q0 = 1.0f;
+    dev->ahrs.q1 = 0.0f;
+    dev->ahrs.q2 = 0.0f;
+    dev->ahrs.q3 = 0.0f;
+
+    dev->ahrs.beta = 0.1f;
+
+    dev->ahrs.last_update_time = esp_timer_get_time();
 }
 
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev) {
@@ -183,6 +193,28 @@ esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp) {
     return ESP_OK; 
 }
 
+esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler) {
+    esp_err_t err;
+    ht_mpu9250_data_t accel, gyro, mag;
+    if((err = ht_mpu9250_get_accel(dev, &accel)) != ESP_OK) {
+        return err;
+    }
+    if((err = ht_mpu9250_get_gyro(dev, &accel)) != ESP_OK) {
+        return err;
+    }
+    if((err = ht_mpu9250_get_mag(dev, &accel)) != ESP_OK) {
+        return err;
+    }
+
+    uint64_t now = esp_timer_get_time();
+
+    float dt = (now - dev->ahrs.last_update_time) / 1000000.0f;
+    dev->ahrs.last_update_time = now;
+
+    float gx_rad = gyro.x * (M_PI / 180.0f);
+    float gy_rad = gyro.y * (M_PI / 180.0f);
+    float gz_rad = gyro.z * (M_PI / 180.0f);
+}
 
 
 

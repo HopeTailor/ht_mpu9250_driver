@@ -3,6 +3,8 @@
 #include "stdint.h"
 #include "ht_i2c.h"
 #include "esp_err.h"
+#include "esp_timer.h"
+#include <math.h>
 
 #define MPU9250_I2C_ADDR_LOW      0x68
 #define MPU9250_I2C_ADDR_HIGH     0x69
@@ -55,15 +57,6 @@ typedef struct {
     float z;
 } ht_mpu9250_data_t;
 
-
-typedef struct {
-    i2c_master_dev_handle_t i2c_dev;
-    i2c_master_dev_handle_t i2c_mag;
-    ht_mpu9250_filter_type_t filter_type;
-    ht_mpu9250_gyro_fs_t gyro_scale;
-    ht_mpu9250_accel_fs_t accel_scale;
-} ht_mpu9250_dev_t;
-
 typedef struct {
     float q0, q1, q2, q3;
     float beta;
@@ -75,6 +68,15 @@ typedef struct {
     float pitch;
     float yaw;
 } ht_mpu9250_euler_t;
+
+typedef struct {
+    i2c_master_dev_handle_t i2c_dev;
+    i2c_master_dev_handle_t i2c_mag;
+    ht_mpu9250_filter_type_t filter_type;
+    ht_mpu9250_gyro_fs_t gyro_scale;
+    ht_mpu9250_accel_fs_t accel_scale;
+    ht_mpu9250_ahrs_state_t ahrs;
+} ht_mpu9250_dev_t;
 
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev);
 
