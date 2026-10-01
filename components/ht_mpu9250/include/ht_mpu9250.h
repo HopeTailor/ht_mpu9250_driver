@@ -3,7 +3,7 @@
 #include "stdint.h"
 #include "ht_i2c.h"
 #include "esp_err.h"
-#include "esp_timer.h"
+#include <esp_timer.h>
 #include <math.h>
 
 #define MPU9250_I2C_ADDR_LOW      0x68

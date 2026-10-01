@@ -207,27 +207,12 @@ static const uint8_t dmp_memory[3062] = {
     0xA6, 0xD9, 0x00, 0xD8, 0xF1, 0xFF,
 };
 
-static esp_err_t ht_mpu9250_burst_write(ht_mpu9250_dev_t *dev, uint8_t reg_addr, const int *data, size_t len) {
-    uint8_t *buf = (uint8_t *)malloc(len + 1);
-    if(!buf) {
-        return ESP_ERR_NO_MEM;
-    }
-
-    buf[0] = reg_addr;
-    memcpy(buf + 1, data, len);
-
-    esp_err_t err = i2c_master_transmit(dev->i2c_dev, buf, len+1, 1000);
-
-    free(buf);
-    return err;
-}
-
 static esp_err_t ht_mpu9250_write_dmp_memory(ht_mpu9250_dev_t *dev, uint16_t address, const uint8_t *data, uint16_t length) {
     esp_err_t err;
     uint16_t bytes_written = 0;
 
     while(bytes_written < length) {
-        uint8_t back = (address + bytes_written) >> 8;
+        uint8_t bank = (address + bytes_written) >> 8;
         uint8_t start_addr = (address + bytes_written) & 0xFF;
 
         uint8_t chunk_size = 16;
@@ -238,21 +223,20 @@ static esp_err_t ht_mpu9250_write_dmp_memory(ht_mpu9250_dev_t *dev, uint16_t add
             chunk_size = length - bytes_written;
         }
 
-        if((err = ht_mpu9250_write_register(dev, MPU9250_BANK_SEL, bank)) != ESP_OK) {
-            return err;
-        } 
-     
-        if((err = ht_mpu9250_write_register(dev, MPU9250_MEM_START_ADDR, start_addr)) != ESP_OK) {
+        if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_BANK_SEL, &bank, 1)) != ESP_OK) {
             return err;
         } 
 
-        if((err = ht_mpu_write_burst(dev, MPU9250_MEM_R_W, &data[bytes_written], chunk_size)) != ESP_OK) {
+        if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_MEM_START_ADDR, &start_addr, 1)) != ESP_OK) {
             return err;
         } 
+
+        if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_MEM_R_W, &data[bytes_written], chunk_size)) != ESP_OK) {
+            return err;
+        }
 
         bytes_written += chunk_size;
     }
-    
 }
 
 static esp_err_t ht_mpu9250_set_gyro_fs(ht_mpu9250_dev_t *dev) {
@@ -300,7 +284,7 @@ static float ht_inv_sqrt(float x) {
     return 1.0f / sqrtf(x); 
 }
 
-static void ht_mpu_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt) {
+static void ht_mpu9250_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt) {
     float q0 = dev->ahrs.q0, q1 = dev->ahrs.q1, q2 = dev->ahrs.q2, q3 = dev->ahrs.q3;
     float beta = dev->ahrs.beta;
     float recipNorm;
@@ -386,7 +370,7 @@ static void ht_mpu_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, fl
     dev->ahrs.q3 = q3 * recipNorm;
 }
 
-static void ht_mpu_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt) {
+static void ht_mpu9250_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt) {
     float q0 = dev->ahrs.q0, q1 = dev->ahrs.q1, q2 = dev->ahrs.q2, q3 = dev->ahrs.q3;
     float recipNorm;
     float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
