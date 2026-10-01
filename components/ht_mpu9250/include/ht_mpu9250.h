@@ -22,6 +22,10 @@
 #define MPU9250_MEM_R_W           0x6F  
 #define MPU9250_PRGM_START_H      0x70  
 #define MPU9250_PRGM_START_L      0x71
+#define MPU9250_USER_CTRL         0x6A
+#define MPU9250_FIFO_COUNTH       0x72
+#define MPU9250_FIFO_COUNTL       0x73
+#define MPU9250_FIFO_R_W          0x74
 
 #define AK8963_I2C_ADDR           0x0C
 #define AK8963_REG_WIA            0x00
@@ -107,3 +111,4 @@ void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev);
 
 esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler);
 
+esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev);

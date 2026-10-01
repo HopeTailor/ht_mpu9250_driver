@@ -597,7 +597,32 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
     esp_err_t err;
 
     if(dev->filter_type == HT_MPU_FILTER_DMP) {
-        return ESP_ERR_NOT_SUPPORTED;
+        uint8_t count_buf[2];
+        if((err = ht_i2c_read_reg8(dev->i2c_dev, MPU9250_FIFO_COUNTH, count_buf, 2) != ESP_OK)) {
+            return err;
+        }
+
+        uint16_t fifo_count = (count_buf[0] << 8) | count_buf[1];
+
+        if(fifo_count < 42) {
+            return ESP_ERR_INVALID_STATE;
+        }
+
+        uint8_t fifo_data[42];
+        if((err = ht_i2c_read_reg8(dev->i2c_dev, MPU9250_FIFO_R_W, fifo_data, 42)) != ESP_OK) {
+            return err;
+        }
+
+        int32_t quat[4];
+        quat[0] = (int32_t)(((uint32_t)fifo_data[0] << 24) | ((uint32_t)fifo_data[1] << 16) | ((uint32_t)fifo_data[2] << 8) | fifo_data[3]);
+        quat[1] = (int32_t)(((uint32_t)fifo_data[4] << 24) | ((uint32_t)fifo_data[5] << 16) | ((uint32_t)fifo_data[6] << 8) | fifo_data[7]);
+        quat[2] = (int32_t)(((uint32_t)fifo_data[8] << 24) | ((uint32_t)fifo_data[9] << 16) | ((uint32_t)fifo_data[10] << 8) | fifo_data[11]);
+        quat[3] = (int32_t)(((uint32_t)fifo_data[12] << 24) | ((uint32_t)fifo_data[13] << 16) | ((uint32_t)fifo_data[14] << 8) | fifo_data[15]);
+    
+        dev->ahrs.q0 = (float)quat[0] / 1073741824.0f;
+        dev->ahrs.q1 = (float)quat[1] / 1073741824.0f;
+        dev->ahrs.q2 = (float)quat[2] / 1073741824.0f;
+        dev->ahrs.q3 = (float)quat[3] / 1073741824.0f;
     }
 
     ht_mpu9250_data_t accel = {0}, gyro = {0}, mag = {0};
@@ -605,10 +630,10 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
     if((err = ht_mpu9250_get_accel(dev, &accel)) != ESP_OK) {
         return err;
     }
-    if((err = ht_mpu9250_get_gyro(dev, &accel)) != ESP_OK) {
+    if((err = ht_mpu9250_get_gyro(dev, &gyro)) != ESP_OK) {
         return err;
     }
-    if((err = ht_mpu9250_get_mag(dev, &accel)) != ESP_OK) {
+    if((err = ht_mpu9250_get_mag(dev, &mag)) != ESP_OK) {
         return err;
     }
 
@@ -652,6 +677,22 @@ esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev) {
     esp_err_t err;
 
     if((err = ht_mpu9250_write_dmp_memory(dev, 0, dmp_memory, sizeof(dmp_memory))) != ESP_OK) {
+        return err;
+    }
+
+    uint16_t dmp_start_addr = 0x0400;
+    uint8_t start_h = (uint8_t)(dmp_start_addr >> 8);
+    uint8_t start_l = (uint8_t)(dmp_start_addr & 0xFF);
+
+    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_PRGM_START_H, &start_h, 1)) != ESP_OK) {
+        return err;
+    }
+    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_PRGM_START_L, &start_l, 1)) != ESP_OK) {
+        return err;
+    }
+
+    uint8_t user_ctrl = 0xC0;
+    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_USER_CTRL, &user_ctrl, 1)) != ESP_OK) {
         return err;
     }
 
