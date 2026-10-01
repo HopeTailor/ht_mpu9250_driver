@@ -237,6 +237,8 @@ static esp_err_t ht_mpu9250_write_dmp_memory(ht_mpu9250_dev_t *dev, uint16_t add
 
         bytes_written += chunk_size;
     }
+
+    return ESP_OK;
 }
 
 static esp_err_t ht_mpu9250_set_gyro_fs(ht_mpu9250_dev_t *dev) {
