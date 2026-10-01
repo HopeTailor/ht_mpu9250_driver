@@ -65,24 +65,42 @@ static void ht_mpu_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, fl
 
     if(!((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f))) {
         recipNorm = ht_inv_sqrt(ax * ax + ay * ay + az * az);
-        ax *= recipNorm; ay *= recipNorm; az *= recipNorm;
+        ax *= recipNorm; 
+        ay *= recipNorm; 
+        az *= recipNorm;
 
         recipNorm = ht_inv_sqrt(mx * mx + my * my + mz * mz);
-        mx *= recipNorm; my *= recipNorm; mz *= recipNorm;
+        mx *= recipNorm; 
+        my *= recipNorm; 
+        mz *= recipNorm;
 
-        _2q0mx = 2.0f * q0 * mx; _2q0my = 2.0f * q0 * my; _2q0mz = 2.0f * q0 * mz;
-        _2q1mx = 2.0f * q1 * mx; _2q0 = 2.0f * q0; _2q1 = 2.0f * q1; _2q2 = 2.0f * q2; _2q3 = 2.0f * q3;
-        _2q0q2 = 2.0f * q0 * q2; _2q2q3 = 2.0f * q2 * q3;
-        q0q0 = q0 * q0; q0q1 = q0 * q1; q0q2 = q0 * q2; q0q3 = q0 * q3;
-        q1q1 = q1 * q1; q1q2 = q1 * q2; q1q3 = q1 * q3;
-        q2q2 = q2 * q2; q2q3 = q2 * q3;
+        _2q0mx = 2.0f * q0 * mx; 
+        _2q0my = 2.0f * q0 * my; 
+        _2q0mz = 2.0f * q0 * mz;
+        _2q1mx = 2.0f * q1 * mx; 
+        _2q0 = 2.0f * q0; 
+        _2q1 = 2.0f * q1; 
+        _2q2 = 2.0f * q2; 
+        _2q3 = 2.0f * q3;
+        _2q0q2 = 2.0f * q0 * q2; 
+        _2q2q3 = 2.0f * q2 * q3;
+        q0q0 = q0 * q0; 
+        q0q1 = q0 * q1; 
+        q0q2 = q0 * q2; 
+        q0q3 = q0 * q3;
+        q1q1 = q1 * q1; 
+        q1q2 = q1 * q2; 
+        q1q3 = q1 * q3;
+        q2q2 = q2 * q2; 
+        q2q3 = q2 * q3;
         q3q3 = q3 * q3;
 
         hx = mx * q0q0 - _2q0my * q3 + _2q0mz * q2 + mx * q1q1 + _2q1 * my * q2 + _2q1 * mz * q3 - mx * q2q2 - mx * q3q3;
         hy = _2q0mx * q3 + my * q0q0 - _2q0mz * q1 + _2q1mx * q2 - my * q1q1 + my * q2q2 + _2q2 * mz * q3 - my * q3q3;
         _2bx = sqrtf(hx * hx + hy * hy);
         _2bz = -_2q0mx * q2 + _2q0my * q1 + mz * q0q0 + _2q1mx * q3 - mz * q1q1 + _2q2 * my * q3 - mz * q2q2 + mz * q3q3;
-        _4bx = 2.0f * _2bx; _4bz = 2.0f * _2bz;
+        _4bx = 2.0f * _2bx; 
+        _4bz = 2.0f * _2bz;
 
         s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * q2 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q3 + _2bz * q1) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q2 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
         s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q1 * (1.0f - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * q3 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q2 + _2bz * q0) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q3 - _4bz * q1) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
@@ -90,7 +108,10 @@ static void ht_mpu_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, fl
         s3 = _2q1 * (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) + (-_4bx * q3 + _2bz * q1) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q0 + _2bz * q2) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q1 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
 
         recipNorm = ht_inv_sqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);
-        s0 *= recipNorm; s1 *= recipNorm; s2 *= recipNorm; s3 *= recipNorm;
+        s0 *= recipNorm; 
+        s1 *= recipNorm; 
+        s2 *= recipNorm; 
+        s3 *= recipNorm;
 
         qDot1 -= beta * s0;
         qDot2 -= beta * s1;
@@ -102,6 +123,75 @@ static void ht_mpu_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, fl
     q1 += qDot2 * dt;
     q2 += qDot3 * dt;
     q3 += qDot4 * dt;
+
+    recipNorm = ht_inv_sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+    dev->ahrs.q0 = q0 * recipNorm;
+    dev->ahrs.q1 = q1 * recipNorm;
+    dev->ahrs.q2 = q2 * recipNorm;
+    dev->ahrs.q3 = q3 * recipNorm;
+}
+
+static void ht_mpu_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt) {
+    float q0 = dev->ahrs.q0, q1 = dev->ahrs.q1, q2 = dev->ahrs.q2, q3 = dev->ahrs.q3;
+    float recipNorm;
+    float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+    float hx, hy, bx, bz;
+    float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
+    float halfex, halfey, halfez;
+    float qa, qb, qc;
+
+    float twoKp = 2.0f; 
+
+    if((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)) return;
+
+    if(!((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f))) {
+        recipNorm = ht_inv_sqrt(ax * ax + ay * ay + az * az);
+        ax *= recipNorm; ay *= recipNorm; az *= recipNorm;
+
+        recipNorm = ht_inv_sqrt(mx * mx + my * my + mz * mz);
+        mx *= recipNorm; my *= recipNorm; mz *= recipNorm;
+
+        q0q0 = q0 * q0; q0q1 = q0 * q1; q0q2 = q0 * q2; q0q3 = q0 * q3;
+        q1q1 = q1 * q1; q1q2 = q1 * q2; q1q3 = q1 * q3;
+        q2q2 = q2 * q2; q2q3 = q2 * q3; q3q3 = q3 * q3;
+
+        hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
+        hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
+        bx = sqrtf(hx * hx + hy * hy);
+        bz = 2.0f * (mx * (q1q3 - q0q2) + my * (q2q3 + q0q1) + mz * (0.5f - q1q1 - q2q2));
+
+        halfvx = q1q3 - q0q2;
+        halfvy = q0q1 + q2q3;
+        halfvz = q0q0 - 0.5f + q3q3;
+        halfwx = bx * (0.5f - q2q2 - q3q3) + bz * (q1q3 - q0q2);
+        halfwy = bx * (q1q2 - q0q3) + bz * (q0q1 + q2q3);
+        halfwz = bx * (q0q2 + q1q3) + bz * (0.5f - q1q1 - q2q2);
+        halfex = (ay * halfvz - az * halfvy) + (my * halfwz - mz * halfwy);
+        halfey = (az * halfvx - ax * halfvz) + (mz * halfwx - mx * halfwz);
+        halfez = (ax * halfvy - ay * halfvx) + (mx * halfwy - my * halfwx);
+    } 
+    else {
+        recipNorm = ht_inv_sqrt(ax * ax + ay * ay + az * az);
+        ax *= recipNorm; ay *= recipNorm; az *= recipNorm;
+
+        halfvx = q1 * q3 - q0 * q2;
+        halfvy = q0 * q1 + q2 * q3;
+        halfvz = q0 * q0 - 0.5f + q3 * q3;
+
+        halfex = (ay * halfvz - az * halfvy);
+        halfey = (az * halfvx - ax * halfvz);
+        halfez = (ax * halfvy - ay * halfvx);
+    }
+
+    gx += twoKp * halfex;
+    gy += twoKp * halfey;
+    gz += twoKp * halfez;
+
+    dt *= 0.5f;
+    q0 += (-qb * gx - qc * gy - q3 * gz) * dt;
+    q1 += (qa * gx + qc * gz - q3 * gy) * dt;
+    q2 += (qa * gy - qb * gz + q3 * gx) * dt;
+    q3 += (qa * gz + qb * gy - qc * gx) * dt;
 
     recipNorm = ht_inv_sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     dev->ahrs.q0 = q0 * recipNorm;
