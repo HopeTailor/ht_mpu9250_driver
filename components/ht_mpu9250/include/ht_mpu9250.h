@@ -17,6 +17,11 @@
 #define MPU9250_REG_ACCEL_XOUT_H  0x3B
 #define MPU9250_REG_TEMP_OUT_H    0x41
 #define MPU9250_REG_GYRO_XOUT_H   0x43
+#define MPU9250_BANK_SEL          0x6D  
+#define MPU9250_MEM_START_ADDR    0x6E  
+#define MPU9250_MEM_R_W           0x6F  
+#define MPU9250_PRGM_START_H      0x70  
+#define MPU9250_PRGM_START_L      0x71
 
 #define AK8963_I2C_ADDR           0x0C
 #define AK8963_REG_WIA            0x00
