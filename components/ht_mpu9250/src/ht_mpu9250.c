@@ -195,7 +195,13 @@ esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp) {
 
 esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler) {
     esp_err_t err;
+
+    if(dev->filter_type == HT_MPU_FILTER_DMP) {
+        return ESP_ERR_NOT_SUPPORTED;
+    }
+
     ht_mpu9250_data_t accel, gyro, mag;
+
     if((err = ht_mpu9250_get_accel(dev, &accel)) != ESP_OK) {
         return err;
     }
@@ -214,6 +220,32 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
     float gx_rad = gyro.x * (M_PI / 180.0f);
     float gy_rad = gyro.y * (M_PI / 180.0f);
     float gz_rad = gyro.z * (M_PI / 180.0f);
+
+    switch(dev->filter_type) {
+        case HT_MPU_FILTER_MADGWICK:
+            ht_mpu9250_madgwick_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, mag.x, mag.y, mag.z, dt);
+            break;
+        case HT_MPU_FILTER_MAHONY:
+            ht_mpu9250_mahony_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, mag.x, mag.y, mag.z, dt);
+            break;    
+        default:
+            return ESP_ERR_INVALID_ARG;
+    }
+
+    float q0 = dev->ahrs.q0;
+    float q1 = dev->ahrs.q1;
+    float q2 = dev->ahrs.q2;
+    float q3 = dev->ahrs.q3;
+
+    euler->roll = atan2f(2.0f * (q0 * q1 + q2 * q3), 1.0f - 2.0f * (q1 * q1 + q2 * q2)) * (180.0f / M_PI);
+
+    float sinp = 2.0f * (q0 * q2 - q3 * q1);
+    sinp = fmaxf(fminf(sinp, 1.0f), -1.0f);
+    euler->pitch = asinf(sinp) * (180.0f / M_PI);
+
+    euler->yaw = atan2f(2.0f * (q0 * q3 + q1 * q2), 1.0f - 2.0f * (q2 * q2 + q3 * q3)) * (180.0f / M_PI);
+
+    return ESP_OK;
 }
 
 

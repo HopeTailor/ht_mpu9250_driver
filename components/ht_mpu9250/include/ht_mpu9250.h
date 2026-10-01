@@ -100,5 +100,9 @@ esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp);
 
 void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev);
 
+static void ht_mpu9250_madgwick_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt);
+
+static void ht_mpu9250_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float dt);
+
 esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler);
 
