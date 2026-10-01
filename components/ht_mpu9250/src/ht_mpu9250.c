@@ -377,7 +377,7 @@ static void ht_mpu9250_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, 
     float hx, hy, bx, bz;
     float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
     float halfex, halfey, halfez;
-    float qa, qb, qc;
+    float qa = 0.0f, qb = 0.0f, qc = 0.0f;
 
     float twoKp = 2.0f; 
 
@@ -598,7 +598,7 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
         return ESP_ERR_NOT_SUPPORTED;
     }
 
-    ht_mpu9250_data_t accel, gyro, mag;
+    ht_mpu9250_data_t accel = {0}, gyro = {0}, mag = {0};
 
     if((err = ht_mpu9250_get_accel(dev, &accel)) != ESP_OK) {
         return err;
@@ -646,7 +646,15 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
     return ESP_OK;
 }
 
+esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev) {
+    esp_err_t err;
 
+    if((err = ht_mpu9250_write_dmp_memory(dev, 0, dmp_memory, sizeof(dmp_memory))) != ESP_OK) {
+        return err;
+    }
+
+    return ESP_OK;
+}
 
 
 
