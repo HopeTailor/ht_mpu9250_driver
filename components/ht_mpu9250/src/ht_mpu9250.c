@@ -563,9 +563,9 @@ esp_err_t ht_mpu9250_get_gyro(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *gyro) {
     }
 
     float res = ht_mpu9250_get_gyro_res(dev->gyro_scale);
-    gyro->x = (float)raw.x / res;
-    gyro->y = (float)raw.y / res;
-    gyro->z = (float)raw.z / res;
+    gyro->x = ((float)raw.x / res) - dev->gyro_bias_x;
+    gyro->y = ((float)raw.y / res) - dev->gyro_bias_y;
+    gyro->z = ((float)raw.z / res) - dev->gyro_bias_z;
     return ESP_OK;
 }
 
@@ -699,8 +699,35 @@ esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev) {
     return ESP_OK;
 }
 
+esp_err_t ht_mpu9250_calibrate_gyro(ht_mpu9250_dev_t *dev, uint16_t num_samples) {
+    esp_err_t err;
+    int32_t gyro_bias[3] = {0, 0, 0};
+    ht_mpu9250_raw_data_t raw_gyro;
 
+    dev->gyro_bias_x = 0.0f;
+    dev->gyro_bias_y = 0.0f;
+    dev->gyro_bias_z = 0.0f;
 
+    for(uint16_t i = 0; i < num_samples; i++) {
+        if((err = ht_mpu9250_get_gyro_raw(dev, &raw_gyro)) != ESP_OK) {
+            return err;
+        } 
+
+        gyro_bias[0] += raw_gyro.x;
+        gyro_bias[1] += raw_gyro.y;
+        gyro_bias[2] += raw_gyro.z;
+
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+
+    float res = ht_mpu9250_get_gyro_res(dev->gyro_scale);
+
+    dev->gyro_bias_x = (float)gyro_bias[0] / num_samples / res;
+    dev->gyro_bias_y = (float)gyro_bias[1] / num_samples / res;
+    dev->gyro_bias_z = (float)gyro_bias[2] / num_samples / res;
+
+    return ESP_OK;
+}
 
 
 
