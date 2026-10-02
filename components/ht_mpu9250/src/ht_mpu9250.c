@@ -271,7 +271,7 @@ static float ht_mpu9250_get_gyro_res(ht_mpu9250_gyro_fs_t scale) {
     }
 }
 
-void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev) {
+static void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev) {
     dev->ahrs.q0 = 1.0f;
     dev->ahrs.q1 = 0.0f;
     dev->ahrs.q2 = 0.0f;
@@ -441,6 +441,32 @@ static void ht_mpu9250_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, 
     dev->ahrs.q3 = q3 * recipNorm;
 }
 
+static esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev) {
+    esp_err_t err;
+
+    if((err = ht_mpu9250_write_dmp_memory(dev, 0, dmp_memory, sizeof(dmp_memory))) != ESP_OK) {
+        return err;
+    }
+
+    uint16_t dmp_start_addr = 0x0400;
+    uint8_t start_h = (uint8_t)(dmp_start_addr >> 8);
+    uint8_t start_l = (uint8_t)(dmp_start_addr & 0xFF);
+
+    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_PRGM_START_H, &start_h, 1)) != ESP_OK) {
+        return err;
+    }
+    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_PRGM_START_L, &start_l, 1)) != ESP_OK) {
+        return err;
+    }
+
+    uint8_t user_ctrl = 0xC0;
+    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_USER_CTRL, &user_ctrl, 1)) != ESP_OK) {
+        return err;
+    }
+
+    return ESP_OK;
+}
+
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev) {
     uint8_t pwr_val = 0x00;
     esp_err_t err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_PWR_MGMT_1, &pwr_val, 1);
@@ -466,7 +492,21 @@ esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev) {
 
     uint8_t mag_config = 0x16;
     err = ht_i2c_write_reg8(dev->i2c_mag, AK8963_REG_CNTL1, &mag_config, 1);
-    return err;
+    if(err != ESP_OK) {
+        return err;
+    }
+
+    if(dev->filter_type == HT_MPU_FILTER_DMP) {
+        err = ht_mpu9250_dmp_init(dev);
+        if(err != ESP_OK) {
+            return err;
+        }
+    } 
+    else {
+        ht_mpu9250_ahrs_init(dev);
+    }
+
+    return ESP_OK;
 }
 
 esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, uint8_t *mag_id) {
@@ -669,32 +709,6 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
     euler->pitch = asinf(sinp) * (180.0f / M_PI);
 
     euler->yaw = atan2f(2.0f * (q0 * q3 + q1 * q2), 1.0f - 2.0f * (q2 * q2 + q3 * q3)) * (180.0f / M_PI);
-
-    return ESP_OK;
-}
-
-esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev) {
-    esp_err_t err;
-
-    if((err = ht_mpu9250_write_dmp_memory(dev, 0, dmp_memory, sizeof(dmp_memory))) != ESP_OK) {
-        return err;
-    }
-
-    uint16_t dmp_start_addr = 0x0400;
-    uint8_t start_h = (uint8_t)(dmp_start_addr >> 8);
-    uint8_t start_l = (uint8_t)(dmp_start_addr & 0xFF);
-
-    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_PRGM_START_H, &start_h, 1)) != ESP_OK) {
-        return err;
-    }
-    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_PRGM_START_L, &start_l, 1)) != ESP_OK) {
-        return err;
-    }
-
-    uint8_t user_ctrl = 0xC0;
-    if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_USER_CTRL, &user_ctrl, 1)) != ESP_OK) {
-        return err;
-    }
 
     return ESP_OK;
 }

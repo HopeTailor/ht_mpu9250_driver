@@ -112,10 +112,6 @@ esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *mag);
 
 esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp);
 
-void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev);
-
 esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler);
-
-esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev);
 
 esp_err_t ht_mpu9250_calibrate_gyro(ht_mpu9250_dev_t *dev, uint16_t num_samples);
