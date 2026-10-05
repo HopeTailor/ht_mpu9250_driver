@@ -631,9 +631,9 @@ esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *mag) {
         return err;
     }
 
-    mag->x = (float)raw.y * 0.15f;
-    mag->y = (float)raw.x * 0.15f;
-    mag->z = (float)(-raw.z) * 0.15f;
+    mag->x = ((float)raw.y * 0.15f) - dev->mag_bias_x;
+    mag->y = ((float)raw.x * 0.15f) - dev->mag_bias_y;
+    mag->z = ((float)(-raw.z) * 0.15f) - dev->mag_bias_z;
     return ESP_OK;
 }
 
@@ -759,6 +759,43 @@ esp_err_t ht_mpu9250_calibrate_gyro(ht_mpu9250_dev_t *dev, uint16_t num_samples)
     return ESP_OK;
 }
 
+esp_err_t ht_mpu9250_calibrate_mag(ht_mpu9250_dev_t *dev, uint16_t num_samples) {
+    float mag_max[3] = {-32767, -32767, -32767};
+    float mag_min[3] = {+32767, +32767, +32767};
+    ht_mpu9250_data_t mag_data;
 
+    for(uint16_t i = 0; i < num_samples; i++) {
+        ht_mpu9250_get_mag(dev, &mag_data);
+
+        if(mag_data.x > mag_max[0]) {
+            mag_max[0] = mag_data.x;
+        }
+        if(mag_data.x < mag_min[0]) {
+            mag_min[0] = mag_data.x;
+        }
+
+        if(mag_data.y > mag_max[1]) {
+            mag_max[1] = mag_data.y;
+        }
+        if(mag_data.y < mag_min[1]) {
+            mag_min[1] = mag_data.y;
+        }
+
+        if(mag_data.z > mag_max[2]) {
+            mag_max[2] = mag_data.z;
+        }
+        if(mag_data.z < mag_min[2]) {
+            mag_min[2] = mag_data.z;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    dev->mag_bias_x = (mag_max[0] + mag_min[0]) / 2.0f;
+    dev->mag_bias_y = (mag_max[1] + mag_min[1]) / 2.0f;
+    dev->mag_bias_z = (mag_max[2] + mag_min[2]) / 2.0f;
+
+    return ESP_OK;
+}
 
 

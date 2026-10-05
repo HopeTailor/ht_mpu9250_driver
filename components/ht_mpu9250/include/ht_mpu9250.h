@@ -96,6 +96,9 @@ typedef struct {
     float gyro_bias_x;
     float gyro_bias_y;
     float gyro_bias_z;
+    float mag_bias_x;
+    float mag_bias_y;
+    float mag_bias_z;
 } ht_mpu9250_dev_t;
 
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev);
@@ -121,3 +124,5 @@ esp_err_t ht_mpu9250_get_temp(ht_mpu9250_dev_t *dev, float *temp);
 esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t *euler);
 
 esp_err_t ht_mpu9250_calibrate_gyro(ht_mpu9250_dev_t *dev, uint16_t num_samples);
+
+esp_err_t ht_mpu9250_calibrate_mag(ht_mpu9250_dev_t *dev, uint16_t num_samples);
