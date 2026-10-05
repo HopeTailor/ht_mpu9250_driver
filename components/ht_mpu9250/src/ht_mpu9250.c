@@ -631,8 +631,8 @@ esp_err_t ht_mpu9250_get_mag(ht_mpu9250_dev_t *dev, ht_mpu9250_data_t *mag) {
         return err;
     }
 
-    mag->x = (float)raw.x * 0.15f;
-    mag->y = (float)raw.y * 0.15f;
+    mag->x = (float)raw.y * 0.15f;
+    mag->y = (float)raw.x * 0.15f;
     mag->z = (float)(-raw.z) * 0.15f;
     return ESP_OK;
 }
@@ -703,7 +703,8 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
 
     switch(dev->filter_type) {
         case HT_MPU_FILTER_MADGWICK:
-            ht_mpu9250_madgwick_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, mag.x, mag.y, mag.z, dt);
+            // ht_mpu9250_madgwick_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, mag.x, mag.y, mag.z, dt);
+            ht_mpu9250_madgwick_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, 0, 0, 0, dt);
             break;
         case HT_MPU_FILTER_MAHONY:
             ht_mpu9250_mahony_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, mag.x, mag.y, mag.z, dt);
