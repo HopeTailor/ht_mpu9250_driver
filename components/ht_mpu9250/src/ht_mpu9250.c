@@ -429,10 +429,15 @@ static void ht_mpu9250_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, 
     gz += twoKp * halfez;
 
     dt *= 0.5f;
-    q0 += (-qb * gx - qc * gy - q3 * gz) * dt;
-    q1 += (qa * gx + qc * gz - q3 * gy) * dt;
-    q2 += (qa * gy - qb * gz + q3 * gx) * dt;
-    q3 += (qa * gz + qb * gy - qc * gx) * dt;
+    float dq0 = (-q1 * gx - q2 * gy - q3 * gz) * dt;
+    float dq1 = (q0 * gx + q2 * gz - q3 * gy) * dt;
+    float dq2 = (q0 * gy - q1 * gz + q3 * gx) * dt;
+    float dq3 = (q0 * gz + q1 * gy - q2 * gx) * dt;
+
+    q0 += dq0;
+    q1 += dq1;
+    q2 += dq2;
+    q3 += dq3;
 
     recipNorm = ht_inv_sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     dev->ahrs.q0 = q0 * recipNorm;
