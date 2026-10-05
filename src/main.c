@@ -45,6 +45,12 @@ void app_main(void) {
     ESP_ERROR_CHECK(ht_mpu9250_calibrate_gyro(&mpu_dev, 500));
     ESP_LOGI(TAG, "Calibration Done! Bias X:%.2f Y:%.2f Z:%.2f", mpu_dev.gyro_bias_x, mpu_dev.gyro_bias_y, mpu_dev.gyro_bias_z);
 
+    // ESP_LOGW(TAG, "MAG CALIBRATION: wave the sensor in a FIGURE-8 shape for 15 seconds...");
+    // ESP_ERROR_CHECK(ht_mpu9250_calibrate_mag(&mpu_dev, 1500));
+    // ESP_LOGI(TAG, "Mag Done! Bias X:%.2f Y:%.2f Z:%.2f", mpu_dev.mag_bias_x, mpu_dev.mag_bias_y, mpu_dev.mag_bias_z);
+
+    // mpu_dev.ahrs.last_update_time = esp_timer_get_time();
+
     ht_mpu9250_euler_t euler;
     
     while(1) {
