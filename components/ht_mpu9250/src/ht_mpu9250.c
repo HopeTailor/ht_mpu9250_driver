@@ -515,8 +515,23 @@ esp_err_t ht_mpu9250_check_connection(ht_mpu9250_dev_t *dev, uint8_t *mpu_id, ui
         return err;
     }
 
-    if(*mpu_id != MPU9250_WHO_AM_I_EXPECTED) {
-        return ESP_ERR_NOT_FOUND;
+    if (*mpu_id != MPU9250_WHO_AM_I_71 && 
+        *mpu_id != MPU9250_WHO_AM_I_70 && 
+        *mpu_id != MPU9250_WHO_AM_I_73) {
+        return ESP_FAIL;
+    }
+
+    uint8_t data = 0x00;
+    err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_USER_CTRL, &data, 1);
+    if(err != ESP_OK) {
+        return err;
+    }
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    data = 0x02;
+    err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_INT_PIN_CFG, &data, 1);
+    if(err != ESP_OK) {
+        return err;
     }
 
     err = ht_i2c_read_reg8(dev->i2c_mag, AK8963_REG_WIA, mag_id, 1);

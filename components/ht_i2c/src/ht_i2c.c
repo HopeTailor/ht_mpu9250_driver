@@ -21,7 +21,7 @@ void ht_i2c_scan(i2c_master_bus_handle_t bus_handle) {
         esp_err_t err = i2c_master_probe(bus_handle, i, 100);
 
         if(err == ESP_OK) {
-            printf("-> Found I2C device at address: %02x", i);
+            printf("-> Found I2C device at address: %02x \n", i);
             device_found++;
         }
         
@@ -31,7 +31,7 @@ void ht_i2c_scan(i2c_master_bus_handle_t bus_handle) {
         printf("-> No I2C devices found.");
     }
 
-    printf("Scan complete.")
+    printf("Scan complete.");
 }
 
 esp_err_t ht_i2c_add_device(i2c_master_bus_handle_t bus_handle, uint8_t dev_addr, uint32_t clk_speed, i2c_master_dev_handle_t *dev_handle) {

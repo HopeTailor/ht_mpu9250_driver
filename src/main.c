@@ -17,8 +17,10 @@ void app_main(void) {
     }
     ESP_LOGI(TAG, "I2C Bus Initialized.");
 
+    ht_i2c_scan(bus_handle);
+
     ht_mpu9250_dev_t mpu_dev = {
-        .filter_type = HT_MPU_FILTER_DMP, 
+        .filter_type = HT_MPU_FILTER_MADGWICK, 
         .gyro_scale = HT_MPU_GYRO_FS_2000DPS,
         .accel_scale = HT_MPU_ACCEL_2G
     };

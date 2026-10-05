@@ -11,7 +11,6 @@
 #define MPU9250_I2C_ADDR_LOW      0x68
 #define MPU9250_I2C_ADDR_HIGH     0x69
 #define MPU9250_REG_PWR_MGMT_1    0x6B
-#define MPU9250_REG_WHO_AM_I      0x75
 #define MPU9250_WHO_AM_I_EXPECTED 0x71
 #define MPU9250_REG_INT_PIN_CFG   0x37
 #define MPU9250_REG_GYRO_CONFIG   0x1B
@@ -28,12 +27,19 @@
 #define MPU9250_FIFO_COUNTH       0x72
 #define MPU9250_FIFO_COUNTL       0x73
 #define MPU9250_FIFO_R_W          0x74
+#define MPU9250_WHO_AM_I_71       0x71
+#define MPU9250_WHO_AM_I_70       0x70
+#define MPU9250_WHO_AM_I_73       0x73
+#define MPU9250_REG_USER_CTRL     0x6A
+#define MPU9250_REG_INT_PIN_CFG   0x37
+#define MPU9250_REG_WHO_AM_I      0x75
 
 #define AK8963_I2C_ADDR           0x0C
 #define AK8963_REG_WIA            0x00
 #define AK8963_WIA_EXPECTED       0x48
 #define AK8963_REG_CNTL1          0x0A
 #define AK8963_REG_HXL            0x03
+#define AK8963_WHO_AM_I_48        0x48
 
 typedef enum {
     HT_MPU_FILTER_NONE = 0,
