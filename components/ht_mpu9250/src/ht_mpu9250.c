@@ -711,7 +711,9 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
             break;
         case HT_MPU_FILTER_MAHONY:
             ht_mpu9250_mahony_update(dev, accel.x, accel.y, accel.z, gx_rad, gy_rad, gz_rad, mag.x, mag.y, mag.z, dt);
-            break;    
+            break;  
+        case HT_MPU_FILTER_DMP:
+            break;  
         default:
             return ESP_ERR_INVALID_ARG;
     }

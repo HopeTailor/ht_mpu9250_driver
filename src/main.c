@@ -20,7 +20,7 @@ void app_main(void) {
     ht_i2c_scan(bus_handle);
 
     ht_mpu9250_dev_t mpu_dev = {
-        .filter_type = HT_MPU_FILTER_MAHONY, 
+        .filter_type = HT_MPU_FILTER_DMP, 
         .gyro_scale = HT_MPU_GYRO_FS_2000DPS,
         .accel_scale = HT_MPU_ACCEL_2G
     };
@@ -39,11 +39,11 @@ void app_main(void) {
     ESP_ERROR_CHECK(ht_mpu9250_init(&mpu_dev));
     ESP_LOGI(TAG, "Initialization Complete!");
 
-    ESP_LOGW(TAG, "Keep the sensor absolutely STILL for calibration!");
-    vTaskDelay(pdMS_TO_TICKS(2000)); 
-    ESP_LOGW(TAG, "Calibrating Gyroscope...");
-    ESP_ERROR_CHECK(ht_mpu9250_calibrate_gyro(&mpu_dev, 500));
-    ESP_LOGI(TAG, "Calibration Done! Bias X:%.2f Y:%.2f Z:%.2f", mpu_dev.gyro_bias_x, mpu_dev.gyro_bias_y, mpu_dev.gyro_bias_z);
+    // ESP_LOGW(TAG, "Keep the sensor absolutely STILL for calibration!");
+    // vTaskDelay(pdMS_TO_TICKS(2000)); 
+    // ESP_LOGW(TAG, "Calibrating Gyroscope...");
+    // ESP_ERROR_CHECK(ht_mpu9250_calibrate_gyro(&mpu_dev, 500));
+    // ESP_LOGI(TAG, "Calibration Done! Bias X:%.2f Y:%.2f Z:%.2f", mpu_dev.gyro_bias_x, mpu_dev.gyro_bias_y, mpu_dev.gyro_bias_z);
 
     ht_mpu9250_euler_t euler;
     
