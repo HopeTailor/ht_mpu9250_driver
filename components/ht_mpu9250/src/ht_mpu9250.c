@@ -379,9 +379,8 @@ static void ht_mpu9250_mahony_update(ht_mpu9250_dev_t *dev, float ax, float ay, 
     float hx, hy, bx, bz;
     float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
     float halfex, halfey, halfez;
-    float qa = 0.0f, qb = 0.0f, qc = 0.0f;
 
-    float twoKp = 2.0f; 
+    float twoKp = 10.0f; 
 
     if((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)) return;
 
