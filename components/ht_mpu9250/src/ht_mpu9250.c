@@ -277,7 +277,7 @@ static void ht_mpu9250_ahrs_init(ht_mpu9250_dev_t *dev) {
     dev->ahrs.q2 = 0.0f;
     dev->ahrs.q3 = 0.0f;
 
-    dev->ahrs.beta = 0.1f;
+    dev->ahrs.beta = 0.8f;
 
     dev->ahrs.last_update_time = esp_timer_get_time();
 }
