@@ -1,5 +1,9 @@
 # HT MPU9250 9-DoF IMU Driver for ESP32 (ESP-IDF)
 
+![ESP-IDF](https://img.shields.io/badge/Platform-ESP--IDF-red)
+![C](https://img.shields.io/badge/Language-C-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 A robust, highly optimized, non-blocking C driver for the MPU9250 (and AK8963 magnetometer) designed specifically for the ESP-IDF framework. It features Real-Time Hardware DMP (Digital Motion Processor) parsing and finely-tuned software AHRS algorithms (Mahony & Madgwick) built for high-speed mobile robotics.
 
 ---
@@ -14,7 +18,17 @@ git clone [https://github.com/HopeTailor/ht_mpu9250_driver.git](https://github.c
 ```
 *Note: This driver depends on a custom I2C abstraction layer (`ht_i2c`). Ensure your project has the required I2C read/write functions implemented.*
 
-### 2. Basic Initialization
+### 2. Hardware Wiring
+Connect your MPU9250 module to the ESP32 via the I2C bus. Note that the MPU9250 is a 3.3V logic device.
+
+| MPU9250 Pin | ESP32 Pin | Notes |
+| :--- | :--- | :--- |
+| **VCC** | 3.3V | Do NOT connect to 5V unless your breakout board has a regulator. |
+| **GND** | GND | Common ground. |
+| **SDA** | GPIO 21 | Requires a 4.7kΩ or 10kΩ pull-up resistor. |
+| **SCL** | GPIO 22 | Requires a 4.7kΩ or 10kΩ pull-up resistor. |
+
+### 3. Basic Initialization
 Here is a minimal setup to get the sensor running and outputting Euler angles:
 
 ```c
@@ -28,7 +42,7 @@ ht_mpu9250_dev_t mpu_dev = {
 };
 
 void app_main(void) {
-    // 2. Initialize I2C and link devices (Implementation depends on your ht_i2c driver)
+    // 2. Initialize I2C and link devices
     ht_i2c_add_device(bus_handle, MPU9250_I2C_ADDR_LOW, 400000, &mpu_dev.i2c_dev);
     ht_i2c_add_device(bus_handle, AK8963_I2C_ADDR, 400000, &mpu_dev.i2c_mag);
 
@@ -56,19 +70,24 @@ How you configure the `ht_mpu9250_dev_t` struct deeply affects the output data. 
 *   **`HT_MPU_FILTER_DMP` (Hardware Engine):** 
     *   **Behavior:** Offloads all complex quaternion calculations to the MPU9250's internal processor. It reads 28-byte packets directly from the hardware FIFO.
     *   **Best for:** Projects requiring low CPU usage on the ESP32 and highly stable, noise-free Roll/Pitch data.
-    *   **Note:** Manual calibration functions (like mag figure-8) should generally be avoided in this mode, as the DMP has its own internal baseline tracking.
+    *   **Note:** Manual calibration functions should generally be avoided in this mode.
 *   **`HT_MPU_FILTER_MAHONY` (Software Engine):**
-    *   **Behavior:** Uses a Proportional (P) controller. In our source code, it is aggressively tuned (`Kp = 10.0`) to instantly trust the accelerometer.
+    *   **Behavior:** Uses a Proportional (P) controller. Tuned aggressively (`Kp = 10.0`) to instantly trust the accelerometer.
     *   **Best for:** Fast-moving autonomous robots or vehicles where rapid, zero-lag response to physical turns is crucial.
 *   **`HT_MPU_FILTER_MADGWICK` (Software Engine):**
-    *   **Behavior:** Uses gradient descent optimization. Configured with a `beta` of `0.8`, it provides a smooth and continuous quaternion output.
+    *   **Behavior:** Uses gradient descent optimization. Configured with a `beta` of `0.8`, providing a smooth and continuous quaternion output.
     *   **Best for:** VR headsets, wearable devices, or platforms needing buttery-smooth tracking.
 
-### 2. Sensor Scales (`accel_scale` & `gyro_scale`)
-*   **Accelerometer (2G to 16G):** 
-    *   Setting it to `2G` gives you the highest precision (sensitive to tiny tilts) but will clip if the robot experiences heavy impacts or crashes. `8G` or `16G` is better for high-impact environments (e.g., drones).
-*   **Gyroscope (250DPS to 2000DPS):**
-    *   `2000DPS` (Degrees Per Second) allows the sensor to track extremely fast spins without losing track of its position. `250DPS` provides finer resolution for very slow, delicate movements.
+---
+
+## 🛠️ Troubleshooting & FAQ
+
+*   **`ESP_ERR_INVALID_STATE` when reading Euler angles in DMP mode:**
+    *   *Don't panic!* This is a built-in safety feature. It means the FIFO buffer became desynchronized or overflowed. The driver automatically flushed the corrupted buffer, and clean data will be available in the next loop iteration.
+*   **Sensor outputs all zeros or fails to initialize:**
+    *   Ensure your I2C pull-up resistors are installed. Check your wiring and verify the I2C addresses using a scanner.
+*   **Yaw angle drifts constantly:**
+    *   If using software filters (Mahony/Madgwick), ensure you have properly executed the 3D Figure-8 magnetometer calibration (`ht_mpu9250_calibrate_mag`) before the main loop.
 
 ---
 
