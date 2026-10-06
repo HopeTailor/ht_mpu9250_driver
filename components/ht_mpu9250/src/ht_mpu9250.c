@@ -463,12 +463,29 @@ static esp_err_t ht_mpu9250_dmp_init(ht_mpu9250_dev_t *dev) {
         return err;
     }
 
+    ht_mpu9250_reset_fifo(dev);
+
     uint8_t user_ctrl = 0xC0;
     if((err = ht_i2c_write_reg8(dev->i2c_dev, MPU9250_USER_CTRL, &user_ctrl, 1)) != ESP_OK) {
         return err;
     }
 
     return ESP_OK;
+}
+
+static esp_err_t ht_mpu9250_reset_fifo(ht_mpu9250_dev_t *dev) {
+    uint8_t user_ctrl;
+    ht_i2c_read_reg8(dev->i2c_dev, MPU9250_REG_USER_CTRL, &user_ctrl, 1);
+
+    user_ctrl &= ~0x40;
+    ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_USER_CTRL, &user_ctrl, 1);
+
+    uint8_t fifo_rst = 0x04;
+    ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_USER_CTRL, &fifo_rst, 1);
+    vTaskDelay(pdMS_TO_TICKS(1));
+
+    user_ctrl |= 0x40;
+    return ht_i2c_write_reg8(dev->i2c_dev, MPU9250_REG_USER_CTRL, &user_ctrl, 1);
 }
 
 esp_err_t ht_mpu9250_init(ht_mpu9250_dev_t *dev) {
@@ -663,7 +680,8 @@ esp_err_t ht_mpu9250_get_euler_angles(ht_mpu9250_dev_t *dev, ht_mpu9250_euler_t 
 
         uint16_t fifo_count = (count_buf[0] << 8) | count_buf[1];
 
-        if(fifo_count < 42) {
+        if(fifo_count < 42 || fifo_count >= 1024 || (fifo_count % 42 != 0 && fifo_count > 42)) {
+            ht_mpu9250_reset_fifo(dev);
             return ESP_ERR_INVALID_STATE;
         }
 
