@@ -78,6 +78,22 @@ How you configure the `ht_mpu9250_dev_t` struct deeply affects the output data. 
     *   **Behavior:** Uses gradient descent optimization. Configured with a `beta` of `0.8`, providing a smooth and continuous quaternion output.
     *   **Best for:** VR headsets, wearable devices, or platforms needing buttery-smooth tracking.
 
+### 2. Gyroscope Sensitivity (`gyro_scale`)
+*   **`HT_MPU_GYRO_FS_250DPS` / `500DPS` (Low Range, High Precision):**
+    *   **Behavior:** Maps the sensor's 16-bit ADC to a maximum rotation of 250 or 500 degrees per second. Provides the highest resolution for tiny movements, but "clips" (maxes out) if the sensor spins too fast.
+    *   **Best for:** Camera gimbals, robotic arms, and slow-moving platforms where micro-precision is required.
+*   **`HT_MPU_GYRO_FS_1000DPS` / `2000DPS` (High Range, Low Precision):**
+    *   **Behavior:** Compresses the resolution to track extremely aggressive and violent spins without losing spatial awareness.
+    *   **Best for:** Racing rovers, drones, and high-speed autonomous robots that make sudden, sharp turns.
+
+### 3. Accelerometer Sensitivity (`accel_scale`)
+*   **`HT_MPU_ACCEL_2G` / `4G` (High Sensitivity):**
+    *   **Behavior:** Maximizes the ADC resolution for Earth's 1G gravity vector. It detects the slightest tilts perfectly but will clip under heavy vibrations or impacts.
+    *   **Best for:** Self-balancing robots, tilt-sensors, and slow wheeled robots where calculating the exact Roll/Pitch from gravity is the main goal.
+*   **`HT_MPU_ACCEL_8G` / `16G` (Impact & Vibration Resistance):**
+    *   **Behavior:** Reduces tilt sensitivity to measure heavy linear accelerations and shocks without saturating the sensor.
+    *   **Best for:** Systems with high mechanical vibration (like direct-drive chassis), quadcopters, or crash-detection modules.
+
 ---
 
 ## 🛠️ Troubleshooting & FAQ
