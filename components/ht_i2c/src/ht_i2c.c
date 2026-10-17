@@ -52,13 +52,13 @@ esp_err_t ht_i2c_write_reg16(i2c_master_dev_handle_t dev_handle, uint16_t reg_ad
         write_buf[i + 2] = data[i];
     }
 
-    return i2c_master_transmit(dev_handle, write_buf, sizeof(write_buf), -1);
+    return i2c_master_transmit(dev_handle, write_buf, sizeof(write_buf), HT_I2C_TIMEOUT_MS);
 }
 
 esp_err_t ht_i2c_read_reg16(i2c_master_dev_handle_t dev_handle, uint16_t reg_addr, uint8_t *data, size_t len) {
     uint8_t reg_buf[2] = { (uint8_t)(reg_addr >> 8), (uint8_t)(reg_addr & 0xFF) };
     
-    return i2c_master_transmit_receive(dev_handle, reg_buf, 2, data, len, -1);
+    return i2c_master_transmit_receive(dev_handle, reg_buf, 2, data, len, HT_I2C_TIMEOUT_MS);
 }
 
 esp_err_t ht_i2c_write_reg8(i2c_master_dev_handle_t dev_handle, uint8_t reg_addr, const uint8_t *data, size_t len) {
@@ -69,11 +69,11 @@ esp_err_t ht_i2c_write_reg8(i2c_master_dev_handle_t dev_handle, uint8_t reg_addr
         write_buf[i + 1] = data[i];
     }
 
-    return i2c_master_transmit(dev_handle, write_buf, len + 1, -1);
+    return i2c_master_transmit(dev_handle, write_buf, len + 1, HT_I2C_TIMEOUT_MS);
 }
 
 esp_err_t ht_i2c_read_reg8(i2c_master_dev_handle_t dev_handle, uint8_t reg_addr, uint8_t *data, size_t len) {
-    return i2c_master_transmit_receive(dev_handle, &reg_addr, 1, data, len, -1);
+    return i2c_master_transmit_receive(dev_handle, &reg_addr, 1, data, len, HT_I2C_TIMEOUT_MS);
 }
 
 

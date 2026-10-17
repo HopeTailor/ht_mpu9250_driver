@@ -13,6 +13,8 @@
 #include "esp_err.h"
 #include "driver/i2c_master.h"
 
+#define HT_I2C_TIMEOUT_MS   20
+
 /**
  * @brief Initializes the I2C master bus on the specified pins.
  * 
